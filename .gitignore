@@ -2,3 +2,4 @@ data.json
 *.bin
 .vscode/
 problem.txt
+*env/
