@@ -10,17 +10,21 @@ app = {}
 
 def atexit():
 	try:
-		app['server'].disconnect()
-		print('Disconnected successfully!')
-		led = app['led']
+		if 'server' in app:
+			app['server'].disconnect()
+			print('Disconnected successfully!')
+			app['server'].active(False)
+		
+		if 'led' in app:
+			led = app['led']
 
-		led.value(True)
-		sleep(1)
-		led.value(False)
-		sleep(0.1)
-		led.value(True)
-		sleep(0.2)
-		led.value(False)
+			led.value(True)
+			sleep(1)
+			led.value(False)
+			sleep(0.1)
+			led.value(True)
+			sleep(0.2)
+			led.value(False)
 	except:
 		...
 
@@ -35,7 +39,10 @@ def setup():
 	s.config(dhcp_hostname='esp32mcu')
 	s.connect(creds.get('name'), creds.get('password'))
 
-	if s.isconnected():
+	if not s.isconnected():
+		sleep(5)
+
+	if not s.isconnected():
 		print('Failed to connect!', file=sys.stderr)
 		sys.exit(1)
 
@@ -74,7 +81,7 @@ def loop():
 	led.value(True)
 	sleep(0.1)
 	led.value(False)
-	
+
 	del obj
 	del resp
 	gc.collect()
@@ -84,6 +91,8 @@ try:
 	setup()
 	while loop():
 		sleep(5)
-	atexit()
-except:
-	atexit()
+except Exception as e:
+	print('Error:', e, file=sys.stderr)
+except KeyboardInterrupt:
+	pass
+atexit()
