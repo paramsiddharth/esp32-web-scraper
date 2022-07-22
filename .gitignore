@@ -1,5 +1,6 @@
-data.json
+data*.json
 *.bin
 .vscode/
 problem.txt
 *env/
+original-*.py
