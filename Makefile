@@ -1,23 +1,31 @@
 baud_rate := 115200
+# Previously esp32-20210623-v1.16.bin
+firmware := ESP32_GENERIC-20240602-v1.23.0.bin
 
 .PHONY: doit deps pip-deps flash serial ls get-source view-source put-source clear-source
 
 doit: put-source
 
-deps: pip-deps esp32-20210623-v1.16.bin
+deps: pip-deps ${firmware}
 
 pip-deps:
 	pip install esptool adafruit-ampy
 
-esp32-20210623-v1.16.bin:
-	wget https://micropython.org/resources/firmware/esp32-20210623-v1.16.bin
+pip-deps-dev:
+	pip install micropy-cli
+
+${firmware}:
+	wget "https://micropython.org/resources/firmware/${firmware}"
 
 flash:
-	esptool --port $(port) erase_flash
-	esptool --port $(port) --chip esp32 write_flash -z 0x1000 esp32-20210623-v1.16.bin
+	python -m esptool --port $(port) erase_flash
+	python -m esptool --port $(port) --chip esp32 write_flash -z 0x1000 ${firmware}
 
-serial:
+serial-putty:
 	putty -serial $(port) -sercfg "${baud_rate},8,n,1,N"
+
+serial-screen:
+	screen $(port) ${baud_rate}
 
 ls:
 	ampy --port $(port) --baud ${baud_rate} ls
